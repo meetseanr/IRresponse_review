@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referral Review – Objective BUILD</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    color: #111827;
+    background: #f3f4f6;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Left icon sidebar ── */
+  .sidenav {
+    width: 52px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    flex-shrink: 0;
+    gap: 2px;
+  }
+  .sidenav-logo {
+    width: 36px; height: 36px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sidenav-icon {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; color: #9ca3af; cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .sidenav-icon:hover { background: #f3f4f6; color: #374151; }
+  .sidenav-icon.active { background: #f3f4f6; color: #111827; }
+  .sidenav-icon svg { width: 18px; height: 18px; stroke-width: 1.75; }
+  .sidenav-spacer { flex: 1; }
+
+  .shell { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+  /* ── Top bar ── */
+  .topbar {
+    height: 52px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex; align-items: center;
+    padding: 0 20px; flex-shrink: 0; gap: 8px;
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 14px; color: #111827; }
+  .topbar-spacer { flex: 1; }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+  .btn-new-app {
+    background: #111827; color: #fff; border: none; border-radius: 6px;
+    padding: 6px 12px; font-size: 12.5px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; font-family: inherit;
+  }
+  .btn-new-app:hover { background: #1f2937; }
+  .topbar-icon-btn {
+    background: none; border: none; cursor: pointer; color: #6b7280;
+    padding: 6px; border-radius: 6px; display: flex; align-items: center;
+  }
+  .topbar-icon-btn:hover { background: #f3f4f6; }
+  .topbar-icon-btn svg { width: 18px; height: 18px; stroke-width: 1.75; }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #7c3aed; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+  }
+
+  .body-row { flex: 1; display: flex; overflow: hidden; }
+
+  /* ── Page content ── */
+  .page-content { flex: 1; overflow-y: auto; padding: 18px 24px 32px; min-width: 0; }
+
+  .breadcrumb { font-size: 12px; color: #6b7280; margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
+  .breadcrumb a { color: #6b7280; text-decoration: none; }
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb-sep { color: #d1d5db; }
+
+  .page-heading {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 18px;
+  }
+  .back-btn { background: none; border: none; cursor: pointer; color: #374151; padding: 2px; display: flex; align-items: center; border-radius: 4px; }
+  .back-btn:hover { background: #f3f4f6; }
+  .back-btn svg { width: 18px; height: 18px; stroke-width: 2; }
+
+  /* ── Card ── */
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+
+  .card-header-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 18px; border-bottom: 1px solid #f3f4f6;
+  }
+  .card-org-name { font-size: 13.5px; font-weight: 500; color: #111827; }
+  .card-header-actions { display: flex; align-items: center; gap: 6px; }
+
+  /* Yellow Complete chip */
+  .chip-complete {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #fef9c3; color: #854d0e;
+    border: 1px solid #fde68a; border-radius: 4px;
+    padding: 3px 9px; font-size: 12px; font-weight: 500;
+  }
+  .chip-complete svg { width: 11px; height: 11px; }
+  .chip-responded {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #dcfce7; color: #15803d;
+    border: 1px solid #86efac; border-radius: 4px;
+    padding: 3px 9px; font-size: 12px; font-weight: 500;
+  }
+  .chip-responded svg { width: 11px; height: 11px; }
+
+  /* Plain text action buttons — matching original */
+  .action-btn {
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    font-size: 12.5px; font-weight: 400; color: #374151;
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 8px; border-radius: 5px;
+  }
+  .action-btn:hover { background: #f3f4f6; }
+  .action-btn svg { width: 13px; height: 13px; color: #6b7280; flex-shrink: 0; }
+  .action-btn.danger { color: #dc2626; }
+  .action-btn.danger:hover { background: #fef2f2; }
+  .action-btn.primary { background: #2563eb; color: #fff; border-radius: 5px; }
+  .action-btn.primary:hover { background: #1d4ed8; }
+
+  .card-divider { border: none; border-top: 1px solid #f3f4f6; }
+
+  .card-section { padding: 13px 18px; }
+
+  /* Planner review */
+  .planner-row { display: flex; align-items: center; gap: 14px; }
+  .planner-label { font-size: 13px; font-weight: 500; color: #111827; }
+  .checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #374151; cursor: pointer; }
+  input[type="checkbox"] { width: 13px; height: 13px; accent-color: #2563eb; cursor: pointer; }
+
+  /* Position */
+  .field-label { font-size: 13px; font-weight: 500; color: #111827; margin-bottom: 10px; }
+  .position-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pos-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 11px; border-radius: 5px; font-size: 12.5px; font-weight: 400;
+    cursor: pointer; font-family: inherit; border: 1px solid #d1d5db; background: #fff; color: #374151;
+    transition: background .1s;
+  }
+  .pos-btn:hover:not(.active) { background: #f9fafb; }
+  .pos-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .pos-btn.active { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .pos-btn.active svg { stroke: #fff; }
+
+  /* Reason */
+  .reason-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .add-link { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12.5px; color: #2563eb; display: flex; align-items: center; gap: 3px; }
+  .add-link:hover { text-decoration: underline; }
+  .add-link svg { width: 12px; height: 12px; }
+  .reason-box {
+    width: 100%; border: 1px solid #e5e7eb; border-radius: 5px;
+    background: #f9fafb; padding: 9px 12px;
+    font-size: 12.5px; color: #374151; font-family: inherit; resize: vertical; min-height: 42px;
+  }
+  .reason-box:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+
+  /* Specialist response */
+  .specialist-wrap { padding: 0 18px 18px; }
+  .specialist-box { border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; }
+  .specialist-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px; background: #f9fafb; border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .specialist-header-left { display: flex; align-items: center; gap: 7px; }
+  .specialist-title { font-size: 12.5px; font-weight: 500; color: #111827; }
+  .specialist-include { font-size: 12px; color: #6b7280; }
+  .specialist-meta { font-size: 11.5px; color: #6b7280; display: flex; align-items: center; gap: 4px; }
+  .spec-avatar {
+    width: 20px; height: 20px; border-radius: 50%; background: #d97706; color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600;
+  }
+  .specialist-body { padding: 14px; }
+  .spec-field { margin-bottom: 13px; }
+  .spec-field-label { font-size: 12px; font-weight: 500; color: #111827; margin-bottom: 4px; }
+  .spec-field-value { font-size: 12.5px; color: #374151; line-height: 1.55; }
+  .badge-supported {
+    display: inline-flex; align-items: center; background: #dcfce7; color: #15803d;
+    border-radius: 4px; padding: 2px 8px; font-size: 12px; font-weight: 500;
+  }
+  .legislation-link { display: block; color: #2563eb; font-size: 12.5px; text-decoration: none; margin-bottom: 3px; }
+  .legislation-link:hover { text-decoration: underline; }
+  .condition-block { margin-bottom: 13px; }
+  .condition-title { font-size: 12.5px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+  .condition-subtitle { font-size: 11.5px; color: #6b7280; margin-bottom: 5px; }
+  .condition-text { font-size: 12px; color: #374151; line-height: 1.6; }
+
+  /* ── Right panel ── */
+  .right-panel {
+    width: 290px; flex-shrink: 0;
+    background: #fff; border-left: 1px solid #e5e7eb;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .right-panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid #e5e7eb; flex-shrink: 0;
+  }
+  .right-panel-title { font-size: 14px; font-weight: 600; color: #111827; }
+  .right-panel-close { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 17px; line-height: 1; }
+  .right-panel-close:hover { color: #374151; }
+  .right-panel-body { flex: 1; overflow-y: auto; }
+
+  .referral-callout {
+    margin: 12px 14px; background: #eff6ff;
+    border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 12px;
+  }
+  .referral-callout-label { font-size: 11.5px; font-weight: 600; color: #1d4ed8; margin-bottom: 5px; }
+  .referral-callout-text { font-size: 12px; color: #1e3a8a; line-height: 1.5; margin-bottom: 6px; }
+  .referral-callout-meta { font-size: 11px; color: #3b82f6; }
+
+  .accordion-item { border-bottom: 1px solid #e5e7eb; }
+  .accordion-btn {
+    width: 100%; background: none; border: none; padding: 11px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 400; color: #111827; text-align: left;
+  }
+  .accordion-btn:hover { background: #f9fafb; }
+  .accordion-right { display: flex; align-items: center; gap: 8px; }
+  .acc-refresh { background: none; border: none; cursor: pointer; color: #9ca3af; display: flex; align-items: center; }
+  .acc-refresh svg { width: 13px; height: 13px; stroke-width: 2; }
+  .acc-caret { color: #9ca3af; font-size: 16px; line-height: 1; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.32); z-index: 999;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 10px; width: 420px;
+    max-width: calc(100vw - 32px); padding: 28px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    animation: popIn .15s ease;
+  }
+  @keyframes popIn {
+    from { opacity:0; transform: translateY(8px) scale(.98); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+  .modal-icon-wrap {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: #fef2f2; border: 1px solid #fecaca;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+  }
+  .modal-icon-wrap svg { width: 20px; height: 20px; }
+  .modal-title { font-size: 15px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+  .modal-desc { font-size: 13px; color: #6b7280; line-height: 1.6; margin-bottom: 14px; }
+  .modal-hint {
+    font-size: 12.5px; color: #6b7280; line-height: 1.5;
+    padding: 10px 12px; background: #f9fafb; border-left: 2px solid #e5e7eb; margin-bottom: 24px;
+  }
+  .modal-hint strong { color: #374151; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
+  .modal-btn {
+    border-radius: 6px; padding: 7px 14px; font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: inherit; border: 1px solid #d1d5db;
+    background: #fff; color: #374151;
+  }
+  .modal-btn:hover { background: #f9fafb; }
+  .modal-btn.danger { background: #dc2626; border-color: #dc2626; color: #fff; }
+  .modal-btn.danger:hover { background: #b91c1c; border-color: #b91c1c; }
+</style>
+</head>
+<body>
+
+<!-- Left sidebar -->
+<nav class="sidenav">
+  <div class="sidenav-logo">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="6" fill="#16a34a"/><text x="18" y="24" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#fff">OB</text></svg>
+  </div>
+  <div class="sidenav-icon active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  </div>
+  <div class="sidenav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  </div>
+  <div class="sidenav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+  </div>
+  <div class="sidenav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+  </div>
+  <div class="sidenav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+  <div class="sidenav-spacer"></div>
+  <div class="sidenav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  </div>
+  <div class="sidenav-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+  </div>
+</nav>
+
+<div class="shell">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <svg width="22" height="22" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="6" fill="#16a34a"/><text x="18" y="24" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" font-weight="700" fill="#fff">OB</text></svg>
+      Objective BUILD
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <button class="btn-new-app">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New application
+      </button>
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+      <button class="topbar-icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <div class="avatar">SM</div>
+      <span style="font-size:13px;font-weight:500;color:#111827;">Scott Marshall</span>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <!-- Page -->
+    <div class="page-content">
+      <div class="breadcrumb">
+        <a href="#">Applications</a><span class="breadcrumb-sep">/</span>
+        <a href="#">DA/2025/1236</a><span class="breadcrumb-sep">/</span>
+        <a href="#">Referrals</a><span class="breadcrumb-sep">/</span>
+        <span>Review</span>
+      </div>
+      <div class="page-heading">
+        <button class="back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        Referral review
+      </div>
+
+      <div class="card">
+        <!-- Header bar -->
+        <div class="card-header-bar">
+          <span class="card-org-name">Transport for NSW</span>
+          <div class="card-header-actions">
+            <span class="chip-complete" id="completeChip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Complete
+            </span>
+            <span class="chip-responded" id="respondedChip" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Responded
+            </span>
+            <button class="action-btn danger" id="cancelBtn" style="display:none;">Cancel</button>
+            <button class="action-btn" id="saveDraftBtn" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save draft
+            </button>
+            <button class="action-btn primary" id="reopenBtn">Reopen review</button>
+          </div>
+        </div>
+
+        <hr class="card-divider">
+
+        <!-- Planner review -->
+        <div class="specialist-wrap" style="padding: 16px 18px 0;">
+          <div class="specialist-box">
+            <div class="specialist-header">
+              <div class="specialist-header-left">
+                <input type="checkbox" checked>
+                <span class="specialist-title">Planner review</span>
+                <span class="specialist-include">Include in assessment report</span>
+              </div>
+              <div class="specialist-meta">
+                Last updated 18 Apr 2026 at 12:10 PM by
+                <span class="spec-avatar" style="background:#7c3aed;">SR</span>
+                Sean Richards
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="card-divider">
+
+        <!-- Position -->
+        <div class="card-section">
+          <div class="field-label">Position</div>
+          <div class="position-group">
+            <button class="pos-btn active" data-pos="supported">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Supported
+            </button>
+            <button class="pos-btn" data-pos="not-supported">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Not supported
+            </button>
+            <button class="pos-btn" data-pos="rfi">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              RFI/Design changes
+            </button>
+          </div>
+        </div>
+
+        <hr class="card-divider">
+
+        <!-- Reason for position -->
+        <div class="card-section">
+          <div class="reason-header">
+            <span class="field-label" style="margin-bottom:0">Reason for position</span>
+            <button class="add-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Edit description
+            </button>
+          </div>
+          <textarea class="reason-box" rows="2">asfasfasfs</textarea>
+        </div>
+
+        <hr class="card-divider">
+
+        <!-- Specialist response -->
+        <div class="specialist-wrap" style="padding-top:16px;">
+          <div class="specialist-box">
+            <div class="specialist-header">
+              <div class="specialist-header-left">
+                <input type="checkbox" checked>
+                <span class="specialist-title">Specialist response</span>
+                <span class="specialist-include">Include in assessment report</span>
+              </div>
+              <div class="specialist-meta">
+                Submitted 12 Apr 2026 at 04:10 PM by
+                <span class="spec-avatar">RM</span>
+                Ravi Mehta
+              </div>
+            </div>
+            <div class="specialist-body">
+              <div class="spec-field">
+                <div class="spec-field-label">Position</div>
+                <span class="badge-supported">Supported</span>
+              </div>
+              <div class="spec-field">
+                <div class="spec-field-label">Reason for position</div>
+                <div class="spec-field-value">Transport for NSW does not object. A Section 138 Roads Act approval will be required from Council (as the road authority) for the crossover and associated works. Standard conditions issued.</div>
+              </div>
+              <div class="spec-field">
+                <div class="spec-field-label">Relevant legislation</div>
+                <a class="legislation-link" href="#">Environmental Planning and Assessment Act 1979 — Part 4, Division 4.3</a>
+                <a class="legislation-link" href="#">State Environmental Planning Policy (Transport and Infrastructure) 2021 — Clause 2.122</a>
+                <a class="legislation-link" href="#">Local Environmental Plan 2012 — Clause 6.4 Traffic generation</a>
+              </div>
+              <div class="spec-field">
+                <div class="spec-field-label">Conditions proposed (3)</div>
+              </div>
+              <div class="condition-block">
+                <div class="condition-title">Development in Accordance with Plans/Documentation</div>
+                <div class="condition-subtitle">Conditions that Identify Approved Plans • Prior to commencement</div>
+                <div class="condition-text">The development must be carried out in accordance with the drawings and documents endorsed with Council's approval stamp, and as amended by other conditions of this consent. Approved plans • Plan 01 — Site Plan, rev. B (Architect Ref. 2024/114) • Plan 02 — Ground Floor Plan, rev. B • Plan 03 — Section A-A, rev. A. Reason: To ensure that development is carried out in accordance with the consent issued by Council under s.4.17 of the Environmental Planning and Assessment Act 1979.</div>
+              </div>
+              <div class="condition-block">
+                <div class="condition-title">Design Amendment</div>
+                <div class="condition-subtitle">Prior to the issue of a Construction Certificate (and ongoing, where indicated) • Prior to commencement</div>
+                <div class="condition-text">The following amendments must be made to the development and submitted to Council for approval if no construction certificate is required, or for approval with an application for the relevant construction certificate. Reason: Compliance, to minimise environmental impacts, protect amenity and character.</div>
+              </div>
+              <div class="condition-block">
+                <div class="condition-title">Construction and Traffic Management Plan (Major DAs and Sites with Difficult Access)</div>
+                <div class="condition-subtitle">Matters to be Completed Before the Lodgement of an Application for a Construction Certificate • Prior to commencement</div>
+                <div class="condition-text">A Construction and Traffic Management Plan (CTMP) prepared in accordance with North Sydney Council's Construction and Traffic Management Plan Guidelines, must be submitted to and approved by Council prior to the lodgement of an Application for a Construction Certificate. The CTMP must detail construction vehicle routes, number of trucks, hours of operation, access arrangements, and traffic control.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /card -->
+    </div><!-- /page-content -->
+
+    <!-- Right panel -->
+    <div class="right-panel">
+      <div class="right-panel-header">
+        <span class="right-panel-title">Details</span>
+        <button class="right-panel-close">&#10005;</button>
+      </div>
+      <div class="right-panel-body">
+        <div class="referral-callout">
+          <div class="referral-callout-label">Referral request</div>
+          <div class="referral-callout-text">"Access works within road reserve — review of section 138 Roads Act 1993 compliance."</div>
+          <div class="referral-callout-meta">5 Apr 2026 &bull; John Smith, Clearing House</div>
+        </div>
+        <div class="accordion-item"><button class="accordion-btn">Referral details <span class="acc-caret">&#8250;</span></button></div>
+        <div class="accordion-item"><button class="accordion-btn">Application details <span class="acc-caret">&#8250;</span></button></div>
+        <div class="accordion-item"><button class="accordion-btn">Planning summary <span class="acc-caret">&#8250;</span></button></div>
+        <div class="accordion-item"><button class="accordion-btn">Documents <span class="acc-caret">&#8250;</span></button></div>
+        <div class="accordion-item">
+          <button class="accordion-btn">
+            Map preview
+            <div class="accordion-right">
+              <button class="acc-refresh">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </button>
+              <span class="acc-caret">&#8250;</span>
+            </div>
+          </button>
+        </div>
+        <div class="accordion-item"><button class="accordion-btn">Timeline <span class="acc-caret">&#8250;</span></button></div>
+        <div class="accordion-item"><button class="accordion-btn">Contacts <span class="acc-caret">&#8250;</span></button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Cancel confirmation modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <div class="modal-title">Discard unsaved changes?</div>
+    <div class="modal-desc">You have unsaved changes to this referral review. If you cancel now, all changes will be lost and cannot be recovered.</div>
+    <div class="modal-hint">To keep your work, go back and use <strong>Save draft</strong> first.</div>
+    <div class="modal-footer">
+      <button class="modal-btn" id="goBackBtn">Go back</button>
+      <button class="modal-btn danger" id="discardBtn">Discard changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('modalOverlay');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const saveDraftBtn = document.getElementById('saveDraftBtn');
+  const reopenBtn = document.getElementById('reopenBtn');
+  const completeChip = document.getElementById('completeChip');
+  const respondedChip = document.getElementById('respondedChip');
+
+  let isEditing = false;
+
+  reopenBtn.addEventListener('click', () => {
+    isEditing = !isEditing;
+    if (isEditing) {
+      cancelBtn.style.display = '';
+      saveDraftBtn.style.display = '';
+      respondedChip.style.display = '';
+      reopenBtn.textContent = 'Mark as complete';
+      completeChip.style.display = 'none';
+    } else {
+      cancelBtn.style.display = 'none';
+      saveDraftBtn.style.display = 'none';
+      respondedChip.style.display = 'none';
+      reopenBtn.textContent = 'Reopen review';
+      completeChip.style.display = '';
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('goBackBtn').addEventListener('click', () => overlay.classList.remove('open'));
+  document.getElementById('discardBtn').addEventListener('click', () => {
+    overlay.classList.remove('open');
+    isEditing = false;
+    cancelBtn.style.display = 'none';
+    saveDraftBtn.style.display = 'none';
+    respondedChip.style.display = 'none';
+    reopenBtn.textContent = 'Reopen review';
+    completeChip.style.display = '';
+  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('open'); });
+
+  document.querySelectorAll('.pos-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
